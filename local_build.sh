@@ -37,7 +37,7 @@ docker build --build-arg radiusdesk_volume=${RADIUSDESK_VOLUME} \
              .
 
 echo "init swarm"
-docker-compose up -d
+docker compose -f radiusDesk-stack.yml up -d
 
 echo "Deploy radius stack:"
 
