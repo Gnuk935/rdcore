@@ -38,7 +38,7 @@ docker build --build-arg radiusdesk_volume=${RADIUSDESK_VOLUME} \
 
 echo "init mariadb"
 docker compose -f radiusDesk-stack.yml up -d rdmariadb
-
+sleep 60
 echo "Run script:"
 docker exec -u 0 -it $(docker ps -qf name=mariadb) /tmp/startup.sh
 
