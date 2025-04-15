@@ -36,10 +36,14 @@ docker build --build-arg radiusdesk_volume=${RADIUSDESK_VOLUME} \
              -t radiusdesk/rdcore:latest \
              .
 
-echo "init swarm"
-docker compose -f radiusDesk-stack.yml up -d
+echo "init mariadb"
+docker compose -f radiusDesk-stack.yml up -d rdmariadb
 
-echo "Deploy radius stack:"
+echo "Run script:"
+docker exec -u 0 -it $(docker ps -qf name=mariadb) /tmp/startup.sh
+
+echo "Deploy radius:"
+docker compose -f radiusDesk-stack.yml up -d radiusdesk
 
 echo
 echo All done!
