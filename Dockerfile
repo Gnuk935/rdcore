@@ -16,23 +16,6 @@ RUN apt-get update && \
         tar \
     && rm -rf /var/lib/apt/lists/*
 
-# Create initial directories and set permissions
-RUN mkdir -p /var/www/html \
-    /var/www/html/cake4/rd_cake/logs \
-    /var/www/html/cake4/rd_cake/webroot/files/imagecache \
-    /var/www/html/cake4/rd_cake/tmp \
-    /var/run/freeradius \
-    /var/log/php-fpm && \
-    chown -R www-data:www-data /var/www/html/cake4/rd_cake/tmp \
-                               /var/www/html/cake4/rd_cake/logs \
-                               /var/www/html/cake4/rd_cake/webroot/img/realms \
-                               /var/www/html/cake4/rd_cake/webroot/img/dynamic_details \
-                               /var/www/html/cake4/rd_cake/webroot/img/dynamic_photos \
-                               /var/www/html/cake4/rd_cake/webroot/img/access_providers \
-                               /var/www/html/cake4/rd_cake/webroot/img/hardwares \
-                               /var/www/html/cake4/rd_cake/webroot/files/imagecache \
-    && chown -R freerad:freerad /var/run/freeradius
-
 # Copy configuration files and application source
 COPY ./docker/default /etc/nginx/sites-enabled/
 COPY ./docker/disable_strict_mode.cnf /etc/mysql/conf.d/
@@ -49,6 +32,23 @@ RUN ln -s /var/www/rdcore/rd /var/www/html/rd && \
     ln -s /var/www/rdcore/AmpConf/build/production/AmpConf /var/www/html/conf_dev && \
     ln -s /var/www/rdcore/login/rd_client/build/production/AmpConf /var/www/html/usage && \
     ln -s /var/www/rdcore/cake4/rd_cake/setup/scripts/reporting /var/www/html/reporting
+
+# Create initial directories and set permissions
+RUN mkdir -p /var/www/html \
+    /var/www/html/cake4/rd_cake/logs \
+    /var/www/html/cake4/rd_cake/webroot/files/imagecache \
+    /var/www/html/cake4/rd_cake/tmp \
+    /var/run/freeradius \
+    /var/log/php-fpm && \
+    chown -R www-data:www-data /var/www/html/cake4/rd_cake/tmp \
+                               /var/www/html/cake4/rd_cake/logs \
+                               /var/www/html/cake4/rd_cake/webroot/img/realms \
+                               /var/www/html/cake4/rd_cake/webroot/img/dynamic_details \
+                               /var/www/html/cake4/rd_cake/webroot/img/dynamic_photos \
+                               /var/www/html/cake4/rd_cake/webroot/img/access_providers \
+                               /var/www/html/cake4/rd_cake/webroot/img/hardwares \
+                               /var/www/html/cake4/rd_cake/webroot/files/imagecache \
+    && chown -R freerad:freerad /var/run/freeradius
 
 # Setup cron jobs
 RUN cp /var/www/html/cake4/rd_cake/setup/cron/cron4 /etc/cron.d/ && \
