@@ -1,8 +1,6 @@
 #!/bin/bash
 source ./.env
 
-docker network create --attachable -d bridge "${RADIUSDESK_NETWORK}"
-
 echo Radiusdesk 2-docker system builder v1.0
 echo ---------------------------------------
 echo
@@ -21,17 +19,17 @@ chmod -R 777 "${RADIUSDESK_VOLUME}"
 chmod -R 777 "${RADIUSDESK_VOLUME}/db_startup"
 chmod -R 777 "${RADIUSDESK_VOLUME}/db_conf"
 
-if [ -d "rdcore" ]
-then
-    echo "Directory rdcore exists."
-else
-    git clone https://github.com/RADIUSdesk/rdcore
-fi
-
-cp ./rdcore/cake4/rd_cake/setup/db/rd.sql "${RADIUSDESK_VOLUME}/db_startup"
+cp ./cake4/rd_cake/setup/db/rd.sql "${RADIUSDESK_VOLUME}/db_startup"
 cp ./docker/db_priveleges.sql "$RADIUSDESK_VOLUME/db_startup"
 cp ./docker/startup.sh "$RADIUSDESK_VOLUME/db_startup"
 cp ./docker/my_custom.cnf "$RADIUSDESK_VOLUME/db_conf"
+
+docker network create -d macvlan \
+  --subnet=192.168.150.0/24 \
+  --gateway=192.168.150.1 \
+  --ip-range=192.168.150.0/24 \
+  -o parent=enp6s18 \
+  macvlan-net
 
 echo "Building Radiusdesk image with nginx, php-fpm and freeradius ..."
 docker build --build-arg radiusdesk_volume=${RADIUSDESK_VOLUME} \
@@ -39,10 +37,9 @@ docker build --build-arg radiusdesk_volume=${RADIUSDESK_VOLUME} \
              .
 
 echo "init swarm"
-docker swarm init
+docker-compose up -d
 
 echo "Deploy radius stack:"
-docker stack deploy -c radiusDesk-stack.yml radiusDesk
 
 echo
 echo All done!

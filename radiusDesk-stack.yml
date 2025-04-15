@@ -6,18 +6,14 @@ services:
     container_name: radiusdesk
     env_file:
       - .radiusDeskEnv
-    deploy:
-      restart_policy:
-        condition: always
-      placement:
-        constraints:
-          - node.role == manager
     ports:
       - '80:80'
       - '1812:1812/udp'
       - '1813:1813/udp'
     networks:
-      - radiusdesk_net
+      macvlan-net:
+        ipv4_address: 192.168.150.250
+      mariadb-net:
     labels:
       - com.host.description=radiusdesk
 
@@ -30,14 +26,8 @@ services:
       - rd_data:/bitnami/mariadb
       - ${RADIUSDESK_VOLUME}/db_startup:/tmp
     command: ["/bin/bash", "-c", "/tmp/startup.sh && /opt/bitnami/scripts/mariadb/entrypoint.sh /opt/bitnami/scripts/mariadb/run.sh"]
-    deploy:
-      restart_policy:
-        condition: always
-      placement:
-        constraints:
-          - node.role == manager
     networks:
-      - radiusdesk_net
+      - mariadb-net
     labels:
       - com.host.description=mariadb-radiusdesk
 
@@ -45,6 +35,8 @@ volumes:
   rd_data:
 
 networks:
-  radiusdesk_net:
+  macvlan-net:
     external: true
-    name: "${RADIUSDESK_NETWORK}"
+
+  mariadb-net:
+    driver: bridge
