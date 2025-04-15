@@ -31,14 +31,14 @@ docker network create -d macvlan \
   -o parent=enp6s18 \
   macvlan-net
 
+echo "init mariadb"
+docker compose -f radiusDesk-stack.yml up -d rdmariadb
+
 echo "Building Radiusdesk image with nginx, php-fpm and freeradius ..."
 docker build --build-arg radiusdesk_volume=${RADIUSDESK_VOLUME} \
              -t radiusdesk/rdcore:latest \
              .
 
-echo "init mariadb"
-docker compose -f radiusDesk-stack.yml up -d rdmariadb
-sleep 60
 echo "Run script:"
 docker exec -u 0 -it $(docker ps -qf name=mariadb) /tmp/startup.sh
 
